@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/pref_xor"
+        android:summary="@string/pref_xor_summary"
+        android:title="@string/pref_xor_title"/>
+
+    <EditTextPreference 
+        android:digits="0123456789ABCDEFabcdef"
+        android:inputType="textCapCharacters"
+        android:dependency="@string/pref_xor"
+        android:defaultValue=""
+        android:key="@string/pref_xor_key"
+        android:summary="@string/pref_xor_key_summary"
+        android:title="@string/pref_xor_key_title" 
+        android:maxLength="60"/>
+
     <SwitchPreference
         android:defaultValue="true"
         android:key="@string/pref_clipboard"

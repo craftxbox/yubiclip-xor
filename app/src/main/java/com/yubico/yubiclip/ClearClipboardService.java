@@ -1,4 +1,4 @@
-package com.yubico.yubiclip;
+ package com.yubico.yubiclip;
 
 import android.app.Service;
 import android.content.*;
@@ -47,9 +47,7 @@ public class ClearClipboardService extends Service {
 
     private void clearClipboard() {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        if(YUBI_CLIP_DATA.equals(clipboard.getPrimaryClip().getDescription().getLabel())) {
-            clipboard.setPrimaryClip(ClipData.newPlainText("", ""));
-            Toast.makeText(getApplication(), R.string.cleared, Toast.LENGTH_SHORT).show();
-        }
+        clipboard.setPrimaryClip(ClipData.newPlainText("", ""));
+        Toast.makeText(getApplication(), R.string.cleared, Toast.LENGTH_SHORT).show();
     }
 }

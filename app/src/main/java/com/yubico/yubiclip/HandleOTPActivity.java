@@ -36,6 +36,7 @@ import android.nfc.NfcAdapter;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
+import com.github.fzakaria.ascii85.Ascii85;
 import com.yubico.yubiclip.scancode.KeyboardLayout;
 
 import java.util.Arrays;
@@ -47,7 +48,7 @@ public class HandleOTPActivity extends Activity {
     private static final byte URL_NDEF_RECORD = (byte)0xd1;
     private static final byte[] URL_PREFIX_BYTES = new byte[URL_PREFIX.length() + 2 - 8];
 
-    private static final Pattern OTP_PATTERN = Pattern.compile("^https://my\\.yubico\\.com/[a-z]+/#?([a-zA-Z0-9!]+)$");
+    private static final Pattern OTP_PATTERN = Pattern.compile("^x-yubixor://#(.*)$");
 
     private SharedPreferences prefs;
 
@@ -89,6 +90,18 @@ public class HandleOTPActivity extends Activity {
     }
 
     private void handleOTP(String data) {
+    	if(prefs.getBoolean(getString(R.string.pref_xor), true)) {
+    		String xorKeyString = prefs.getString(getString(R.string.pref_xor_key),"aaaa");
+    		byte[] xorKey = new byte[38];
+    		for(int i = 0; i < 38; i++) {
+    			int stringIndex = i*2;
+    			xorKey[i] = (byte) Integer.parseInt(xorKeyString.substring(stringIndex, stringIndex + 2), 16);
+    		}
+    		byte[] byteData = Ascii85.decode(data);
+    		byte[] decrypted = xorBytes(byteData,xorKey);
+    		data = new String(decrypted);
+    		
+    	}
         if(prefs.getBoolean(getString(R.string.pref_clipboard), true)) {
             copyToClipboard(data);
         }
@@ -97,6 +110,19 @@ public class HandleOTPActivity extends Activity {
         }
     }
 
+    private byte[] xorBytes(byte[] data, byte[] key) {
+    	if(key.length < 38)
+    		throw new RuntimeException("Key length is too short! Keys must be exactly 38 bytes. Encountered:"+key.length);
+    	// No check for if its longer because if its longer than needed we don't have to do anything special
+    	
+    	byte[] decrypted = new byte[data.length];
+    	
+    	for(int i = 0; i < Math.min(data.length, 38); i++) {
+    		decrypted[i] = (byte) (data[i] ^ key[i]);
+    	}
+    	return decrypted;
+    }
+    
     private void copyToClipboard(String data) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText(ClearClipboardService.YUBI_CLIP_DATA, data);

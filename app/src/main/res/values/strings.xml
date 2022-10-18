@@ -40,4 +40,8 @@
     <string name="pref_notification_summary">Display codes in a Notification.</string>
     <string name="pref_layout_title">Keyboard Layout</string>
     <string name="pref_layout_summary">Keyboard layout to use for scancode static password mode.</string>
+    <string name="pref_xor_title">XOR Decryption</string>
+    <string name="pref_xor_summary">Decrypt Base85 Encoded scancode static passwords with XOR</string>
+    <string name="pref_xor_key_title">XOR Key</string>
+    <string name="pref_xor_key_summary">XOR key to use for scancode static password mode. Hexidecimal, Must be 30 bytes (60 characters) long.</string>
 </resources>
