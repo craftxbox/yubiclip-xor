@@ -31,7 +31,7 @@ package com.yubico.yubiclip;
 
 import android.app.*;
 import android.content.*;
-import android.util.Log;
+import android.text.Html;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.os.Parcelable;
@@ -102,19 +102,17 @@ public class HandleOTPActivity extends Activity {
     }
 
     private void provisionXOR(String data) {
-        byte[] byteData = Ascii85.decode(data);
+        byte[] byteData = Ascii85.decode(data.replaceAll("\\x00+$", "")); // The key will produce 38 bytes of data nomatter what, so trim null bytes from the end so we dont end up with garbage
         String xorKey = bytesToHex(byteData);
         if (xorKey.equals(prefs.getString(getString(R.string.pref_xor_key), "aaaa"))) {
-            Toast.makeText(getApplication(), "This XOR key has already been provisioned.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplication(), R.string.xor_key_already_provisioned, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Provision XOR Key");
-        alert.setMessage(
-                "Are you sure you want to provision the XOR key? This may render passwords irretrievable!\n" + xorKey);
-        alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
+        alert.setTitle(R.string.xor_key_provision);
+        alert.setMessage(Html.fromHtml(getString(R.string.xor_key_provision_summary)+ xorKey));
+        alert.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 prefs.edit().putString(getString(R.string.pref_xor_key), xorKey).commit();
@@ -123,8 +121,7 @@ public class HandleOTPActivity extends Activity {
             }
         });
 
-        alert.setNegativeButton("========NO========", new DialogInterface.OnClickListener() {
-
+        alert.setNegativeButton(R.string.safe_no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -148,13 +145,16 @@ public class HandleOTPActivity extends Activity {
     private void handleXOR(String data) {
         if (prefs.getBoolean(getString(R.string.pref_xor), true)) {
             String xorKeyString = prefs.getString(getString(R.string.pref_xor_key), "aaaa");
-            byte[] xorKey = new byte[30];
-            for (int i = 0; i < 30; i++) {
+            byte[] xorKey = new byte[xorKeyString.length() / 2];
+            for (int i = 0; i < xorKeyString.length()/2; i++) {
                 int stringIndex = i * 2;
                 xorKey[i] = (byte) Integer.parseInt(xorKeyString.substring(stringIndex, stringIndex + 2), 16);
             }
-            byte[] byteData = Ascii85.decode(data);
+            byte[] byteData = Ascii85.decode(data.replaceAll("\\x00+$", "")); // The key will produce 38 bytes of data nomatter what, so trim null bytes from the end so we dont end up with garbage
             byte[] decrypted = xorBytes(byteData, xorKey);
+            if(decrypted == null){
+                return;
+            }
             data = new String(decrypted);
 
         }
@@ -168,9 +168,11 @@ public class HandleOTPActivity extends Activity {
     }
 
     private byte[] xorBytes(byte[] data, byte[] key) {
-        if (key.length < 30)
-            throw new RuntimeException(
-                    "Key length is too short! Keys must be exactly 38 bytes. Encountered:" + key.length);
+        if (key.length < 30) {
+            Toast.makeText(getApplication(), R.string.xor_key_too_short, Toast.LENGTH_SHORT).show();
+            finish();
+            return null;
+        }
         // No check for if its longer because if its longer than needed we don't have to
         // do anything special
 

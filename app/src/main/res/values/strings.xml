@@ -33,6 +33,12 @@
     <string name="copied">YubiClip: Copied to clipboard</string>
     <string name="cleared">YubiClip: Clipboard cleared</string>
     <string name="settings">YubiClip Settings</string>
+    <string name="yes">Yes</string>
+    <string name="safe_no">========NO========</string>
+    <string name="xor_key_provision">Provision XOR key</string>
+    <string name="xor_key_too_short">XOR Key length is too short! Keys must be exactly 30 bytes.</string>
+    <string name="xor_key_provision_summary"><![CDATA[Are you sure you want to provision the XOR key?<br/>This may render passwords irretrievable!<br/>]]></string>
+    <string name="xor_key_already_provisioned">YubiClip: Scanned XOR key already provisioned.</string>
     <string name="pref_timeout_title">Clear Clipboard</string>
     <string name="pref_clipboard_title">Clipboard</string>
     <string name="pref_clipboard_summary">Copy codes to the clipboard.</string>
