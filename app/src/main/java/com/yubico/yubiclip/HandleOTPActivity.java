@@ -31,6 +31,7 @@ package com.yubico.yubiclip;
 
 import android.app.*;
 import android.content.*;
+import android.util.Log;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.os.Parcelable;
@@ -39,16 +40,19 @@ import android.widget.Toast;
 import com.github.fzakaria.ascii85.Ascii85;
 import com.yubico.yubiclip.scancode.KeyboardLayout;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class HandleOTPActivity extends Activity {
     private static final String URL_PREFIX = "https://my.yubico.com/";
-    private static final byte URL_NDEF_RECORD = (byte)0xd1;
+    private static final byte URL_NDEF_RECORD = (byte) 0xd1;
     private static final byte[] URL_PREFIX_BYTES = new byte[URL_PREFIX.length() + 2 - 8];
 
-    private static final Pattern OTP_PATTERN = Pattern.compile("^x-yubixor://#(.*)$");
+    private static final Pattern OTP_PATTERN = Pattern.compile("^https://my\\.yubico\\.com/[a-z]+/#?([a-zA-Z0-9!]+)$");
+    private static final Pattern XOR_PATTERN = Pattern.compile("^x-yubixor://#(.*)$");
+    private static final Pattern PROVISON_PATTERN = Pattern.compile("^x-yubixor-provision://#(.*)$");
 
     private SharedPreferences prefs;
 
@@ -64,65 +68,132 @@ public class HandleOTPActivity extends Activity {
 
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        Matcher matcher = OTP_PATTERN.matcher(getIntent().getDataString());
-        if (matcher.matches()) {
-            handleOTP(matcher.group(1));
+        String ids = getIntent().getDataString();
+
+        Matcher otpMatcher = OTP_PATTERN.matcher(ids);
+        Matcher provisionMatcher = PROVISON_PATTERN.matcher(ids);
+        Matcher xorMatcher = XOR_PATTERN.matcher(ids);
+        if (otpMatcher.matches()) {
+            handleOTP(otpMatcher.group(1));
+        } else if (provisionMatcher.matches()) {
+            provisionXOR(provisionMatcher.group(1));
+        } else if (xorMatcher.matches()) {
+            handleXOR(xorMatcher.group(1));
         } else {
             Parcelable[] raw = getIntent().getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
             byte[] bytes = ((NdefMessage) raw[0]).toByteArray();
-            if (bytes[0] == URL_NDEF_RECORD && Arrays.equals(URL_PREFIX_BYTES, Arrays.copyOfRange(bytes, 3, 3 + URL_PREFIX_BYTES.length))) {
-                if(Arrays.equals("/neo/".getBytes(), Arrays.copyOfRange(bytes, 18, 18 + 5))) {
+            if (bytes[0] == URL_NDEF_RECORD
+                    && Arrays.equals(URL_PREFIX_BYTES, Arrays.copyOfRange(bytes, 3, 3 + URL_PREFIX_BYTES.length))) {
+                if (Arrays.equals("/neo/".getBytes(), Arrays.copyOfRange(bytes, 18, 18 + 5))) {
                     bytes[22] = '#';
                 }
-                for(int i=0; i<bytes.length; i++) {
+                for (int i = 0; i < bytes.length; i++) {
                     if (bytes[i] == '#') {
-                        bytes = Arrays.copyOfRange(bytes, i+1, bytes.length);
+                        bytes = Arrays.copyOfRange(bytes, i + 1, bytes.length);
                         String layout = prefs.getString(getString(R.string.pref_layout), "US");
                         KeyboardLayout kbd = KeyboardLayout.forName(layout);
                         handleOTP(kbd.fromScanCodes(bytes));
+                        finish();
                         break;
                     }
                 }
             }
         }
+    }
 
-        finish();
+    private void provisionXOR(String data) {
+        byte[] byteData = Ascii85.decode(data);
+        String xorKey = bytesToHex(byteData);
+        if (xorKey.equals(prefs.getString(getString(R.string.pref_xor_key), "aaaa"))) {
+            Toast.makeText(getApplication(), "This XOR key has already been provisioned.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setTitle("Provision XOR Key");
+        alert.setMessage(
+                "Are you sure you want to provision the XOR key? This may render passwords irretrievable!\n" + xorKey);
+        alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                prefs.edit().putString(getString(R.string.pref_xor_key), xorKey).commit();
+                dialog.dismiss();
+                finish();
+            }
+        });
+
+        alert.setNegativeButton("========NO========", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+
+        alert.show();
     }
 
     private void handleOTP(String data) {
-    	if(prefs.getBoolean(getString(R.string.pref_xor), true)) {
-    		String xorKeyString = prefs.getString(getString(R.string.pref_xor_key),"aaaa");
-    		byte[] xorKey = new byte[38];
-    		for(int i = 0; i < 38; i++) {
-    			int stringIndex = i*2;
-    			xorKey[i] = (byte) Integer.parseInt(xorKeyString.substring(stringIndex, stringIndex + 2), 16);
-    		}
-    		byte[] byteData = Ascii85.decode(data);
-    		byte[] decrypted = xorBytes(byteData,xorKey);
-    		data = new String(decrypted);
-    		
-    	}
-        if(prefs.getBoolean(getString(R.string.pref_clipboard), true)) {
+        if (prefs.getBoolean(getString(R.string.pref_clipboard), true)) {
             copyToClipboard(data);
         }
-        if(prefs.getBoolean(getString(R.string.pref_notification), false)) {
+        if (prefs.getBoolean(getString(R.string.pref_notification), false)) {
             displayNotification(data);
         }
+        finish();
+    }
+
+    private void handleXOR(String data) {
+        if (prefs.getBoolean(getString(R.string.pref_xor), true)) {
+            String xorKeyString = prefs.getString(getString(R.string.pref_xor_key), "aaaa");
+            byte[] xorKey = new byte[30];
+            for (int i = 0; i < 30; i++) {
+                int stringIndex = i * 2;
+                xorKey[i] = (byte) Integer.parseInt(xorKeyString.substring(stringIndex, stringIndex + 2), 16);
+            }
+            byte[] byteData = Ascii85.decode(data);
+            byte[] decrypted = xorBytes(byteData, xorKey);
+            data = new String(decrypted);
+
+        }
+        if (prefs.getBoolean(getString(R.string.pref_clipboard), true)) {
+            copyToClipboard(data);
+        }
+        if (prefs.getBoolean(getString(R.string.pref_notification), false)) {
+            displayNotification(data);
+        }
+        finish();
     }
 
     private byte[] xorBytes(byte[] data, byte[] key) {
-    	if(key.length < 38)
-    		throw new RuntimeException("Key length is too short! Keys must be exactly 38 bytes. Encountered:"+key.length);
-    	// No check for if its longer because if its longer than needed we don't have to do anything special
-    	
-    	byte[] decrypted = new byte[data.length];
-    	
-    	for(int i = 0; i < Math.min(data.length, 38); i++) {
-    		decrypted[i] = (byte) (data[i] ^ key[i]);
-    	}
-    	return decrypted;
+        if (key.length < 30)
+            throw new RuntimeException(
+                    "Key length is too short! Keys must be exactly 38 bytes. Encountered:" + key.length);
+        // No check for if its longer because if its longer than needed we don't have to
+        // do anything special
+
+        byte[] decrypted = new byte[data.length];
+
+        for (int i = 0; i < Math.min(data.length, 30); i++) {
+            decrypted[i] = (byte) (data[i] ^ key[i]);
+        }
+        return decrypted;
     }
-    
+
+    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+
+    public static String bytesToHex(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
     private void copyToClipboard(String data) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText(ClearClipboardService.YUBI_CLIP_DATA, data);
