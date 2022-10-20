@@ -3,7 +3,7 @@ A fork of [YubiClip](https://github.com/Yubico/yubiclip-android)
 Present static passwords over NFC securely from your NFC enabled Yubikey.
 
 ## First-time Setup
-Run the [`xorsetup.py`](./tree/master/py) utility
+Run the [`xorsetup.py`](./py) utility
 ```
   py xorsetup.py <slot: 1|2> <Key in hex format>
 ```
