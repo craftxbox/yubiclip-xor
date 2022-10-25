@@ -1,5 +1,5 @@
 # YubiClip XOR
-A fork of [YubiClip](https://github.com/Yubico/yubiclip-android)
+A fork of [YubiClip](https://github.com/Yubico/yubiclip-android)  
 Present static passwords over NFC securely from your NFC enabled Yubikey.
 
 ## First-time Setup
@@ -17,5 +17,5 @@ Resulting APKs can be found in app/build/outputs/apk or you can install the Debu
 ```
 ./gradlew installDebug
 ```
-Note: To install Release APKs they need to be signed first!
+Note: To install Release APKs they need to be signed first!  
 Debug APKs do not need to be signed (as they are signed with the debug key)
