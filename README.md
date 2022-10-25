@@ -1,4 +1,4 @@
-# YubiClip XOR
+# YubiClip XOR [![Java CI with Gradle](https://github.com/craftxbox/yubiclip-xor/actions/workflows/gradle.yml/badge.svg)](https://github.com/craftxbox/yubiclip-xor/actions/workflows/gradle.yml)
 A fork of [YubiClip](https://github.com/Yubico/yubiclip-android)  
 Present static passwords over NFC securely from your NFC enabled Yubikey.
 
