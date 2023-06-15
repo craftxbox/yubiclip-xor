@@ -1,0 +1,3 @@
+YubiClip XOR is a fork of the Yubico YubiClip app. With YubiClip XOR you can apply XOR encryption to keep static passwords safe from Drive-by NFC reading attacks.
+
+You will need to setup your Yubikey before the XOR function can be used in this app. For setup instructions, and to view the source code of this app, go to https://github.com/craftxbox/yubiclip-xor#readme

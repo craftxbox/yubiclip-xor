@@ -1,0 +1,1 @@
+Present static passwords over NFC securely from your NFC enabled Yubikey.
