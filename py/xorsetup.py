@@ -1,5 +1,5 @@
 import sys
-import getpass
+import pwinput
 import base64
 import secrets
 import time
@@ -98,7 +98,7 @@ if xorKeyGenerated:
 
         session.put_configuration(slot, StaticPasswordSlotConfiguration(base64.a85encode(bytes.fromhex(xorKey))))
         session.set_ndef_configuration(slot,"x-yubixor-provision://#", None, NDEF_TYPE.URI)
-        print("Loaded provision key. Remove your YubiKey and scan it with the Yubiclip-XOR app.")
+        print("Loaded provision key. Remove your YubiKey and scan it with the Yubiclip-XOR app before continuing.")
 
         didProvision = True
     print("Continue setup? y/n")
@@ -128,8 +128,8 @@ with connection:
             sys.exit()
 
     while True:
-        password = getpass.getpass("Enter password (max 30 bytes, min 8): ")
-        passconf = getpass.getpass("Confirm password: ")
+        password = pwinput.pwinput("Enter password (max 30 bytes, min 8): ")
+        passconf = pwinput.pwinput("Confirm password: ")
         if password != passconf:
             print("Passwords do not match, Try again.")
         elif len(password.encode("ascii")) > 30:

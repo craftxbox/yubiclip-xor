@@ -37,7 +37,7 @@
     <string name="safe_no">========NO========</string>
     <string name="xor_key_provision">Provision XOR key</string>
     <string name="xor_key_too_short">XOR Key length is too short! Keys must be exactly 30 bytes.</string>
-    <string name="xor_key_provision_summary"><![CDATA[Are you sure you want to provision the XOR key?<br/>This may render passwords irretrievable!<br/>]]></string>
+    <string name="xor_key_provision_summary"><![CDATA[Are you sure you want to provision the XOR key?<br/>This may render previous passwords irretrievable!<br/>]]></string>
     <string name="xor_key_already_provisioned">YubiClip: Scanned XOR key already provisioned.</string>
     <string name="pref_timeout_title">Clear Clipboard</string>
     <string name="pref_clipboard_title">Clipboard</string>
@@ -47,7 +47,9 @@
     <string name="pref_layout_title">Keyboard Layout</string>
     <string name="pref_layout_summary">Keyboard layout to use for scancode static password mode.</string>
     <string name="pref_xor_title">XOR Decryption</string>
-    <string name="pref_xor_summary">Decrypt Base85 Encoded scancode static passwords with XOR</string>
+    <string name="pref_xor_summary">Decrypt static passwords with XOR where applicable.</string>
     <string name="pref_xor_key_title">XOR Key</string>
-    <string name="pref_xor_key_summary">XOR key to use for scancode static password mode. Hexidecimal, Must be 30 bytes (60 characters) long.</string>
+    <string name="pref_xor_key_summary">XOR key to use for static password decryption. Hexadecimal, Must be 30 bytes (60 characters) long.</string>
+    <string name="pref_instruction_title">XOR Setup Instructions</string>
+    <string name="pref_instruction_summary">If you would like to use XOR protection, click here for setup instructions.</string>
 </resources>

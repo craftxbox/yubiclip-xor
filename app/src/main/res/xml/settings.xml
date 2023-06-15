@@ -4,22 +4,6 @@
 
     <SwitchPreference
         android:defaultValue="true"
-        android:key="@string/pref_xor"
-        android:summary="@string/pref_xor_summary"
-        android:title="@string/pref_xor_title"/>
-
-    <EditTextPreference 
-        android:digits="0123456789ABCDEFabcdef"
-        android:inputType="textCapCharacters"
-        android:dependency="@string/pref_xor"
-        android:defaultValue=""
-        android:key="@string/pref_xor_key"
-        android:summary="@string/pref_xor_key_summary"
-        android:title="@string/pref_xor_key_title" 
-        android:maxLength="60"/>
-
-    <SwitchPreference
-        android:defaultValue="true"
         android:key="@string/pref_clipboard"
         android:summary="@string/pref_clipboard_summary"
         android:title="@string/pref_clipboard_title"/>
@@ -43,4 +27,27 @@
         android:key="@string/pref_layout"
         android:summary="@string/pref_layout_summary"
         android:title="@string/pref_layout_title"/>
+        
+	<SwitchPreference
+        android:defaultValue="false"
+        android:key="@string/pref_xor"
+        android:summary="@string/pref_xor_summary"
+        android:title="@string/pref_xor_title"/>
+        
+    <Preference
+		android:title="@string/pref_instruction_title"
+		android:summary="@string/pref_instruction_summary"
+		android:key="@string/pref_instruction_key"
+		android:dependency="@string/pref_xor"/>
+
+    <EditTextPreference 
+        android:digits="0123456789ABCDEFabcdef"
+        android:inputType="textCapCharacters"
+        android:dependency="@string/pref_xor"
+        android:defaultValue=""
+        android:key="@string/pref_xor_key"
+        android:summary="@string/pref_xor_key_summary"
+        android:title="@string/pref_xor_key_title" 
+        android:maxLength="60"/>
+        
 </PreferenceScreen>

@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre-8.0.252.09-hotspot"/>
 	<classpathentry kind="con" path="org.eclipse.andmore.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="src" path="app/src/main/java"/>
 	<classpathentry kind="lib" path="gradle/wrapper/gradle-wrapper.jar"/>

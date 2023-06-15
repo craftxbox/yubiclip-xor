@@ -6,6 +6,9 @@ import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.Preference;
+import android.net.Uri;
+import android.content.Intent;
 import com.yubico.yubiclip.scancode.KeyboardLayout;
 
 import java.util.Set;
@@ -35,6 +38,16 @@ public class SettingsFragment extends PreferenceFragment implements SharedPrefer
         prefLayout.setEntryValues(availableLayoutsArr);
 
         updateClearSummary();
+        
+        Preference instructionButton = findPreference(getString(R.string.pref_instruction_key));
+        instructionButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) { 
+            	Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/craftxbox/yubiclip-xor#readme"));
+            	startActivity(browserIntent);
+            	return true;
+            }
+        });
     }
 
     @Override
