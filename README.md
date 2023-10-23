@@ -3,7 +3,14 @@
 A fork of [YubiClip](https://github.com/Yubico/yubiclip-android)  
 Present static passwords over NFC securely from your NFC enabled Yubikey.
 
-<a href='https://play.google.com/store/apps/details?id=com.craftxbox.yubiclip.xor&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="200em" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/com.craftxbox.yubiclip.xor/)
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+     alt="Get it on Google Play"
+     height="80">](https://play.google.com/store/apps/details?id=com.craftxbox.yubiclip.xor)
+
+Or download the latest APK from the [Releases Section](https://github.com/craftxbox/yubiclip-xor/releases/latest).
 
 ## First-time XOR Setup & Password changes
 
